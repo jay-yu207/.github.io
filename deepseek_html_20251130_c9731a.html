@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注意力问题测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, #1a2a6c, #2c3e50);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .page {
+            padding: 30px;
+            display: none;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        .welcome-content {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .welcome-content p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .instructions {
+            background-color: #e8f4fd;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(to right, #1a2a6c, #2c3e50);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .progress-container {
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #1a2a6c, #2c3e50);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-weight: bold;
+            color: #1a2a6c;
+        }
+        
+        .question-container {
+            margin-bottom: 30px;
+        }
+        
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option:hover {
+            border-color: #3498db;
+            background-color: #f0f8ff;
+        }
+        
+        .option.selected {
+            border-color: #1a2a6c;
+            background-color: #e8f4fd;
+        }
+        
+        .score-display {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(to right, #1a2a6c, #2c3e50);
+            color: white;
+            border-radius: 10px;
+        }
+        
+        .score-value {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .result-content {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #1a2a6c;
+        }
+        
+        .result-content h3 {
+            color: #1a2a6c;
+            margin-bottom: 15px;
+        }
+        
+        .result-content p {
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+        
+        .result-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .result-content li {
+            margin-bottom: 8px;
+        }
+        
+        .level-info {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .level-1 {
+            background-color: #ffeaea;
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .level-2 {
+            background-color: #fff4e6;
+            border-left: 5px solid #f39c12;
+        }
+        
+        .level-3 {
+            background-color: #e8f4fd;
+            border-left: 5px solid #3498db;
+        }
+        
+        .level-4 {
+            background-color: #e8f8f0;
+            border-left: 5px solid #27ae60;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .page {
+                padding: 20px;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>注意力问题测试</h1>
+            <p class="tagline">评估您的注意力水平，获得专业分析和建议</p>
+        </header>
+        
+        <!-- 欢迎页面 -->
+        <div id="welcome-page" class="page active">
+            <div class="welcome-content">
+                <p>欢迎参加注意力问题测试！本测试基于专业心理学评估标准，旨在帮助您了解自己的注意力水平。</p>
+                
+                <div class="instructions">
+                    <p><strong>测试说明：</strong></p>
+                    <p>1. 本测试包含22个问题，大约需要10-15分钟完成</p>
+                    <p>2. 请根据您的实际情况选择最符合的选项</p>
+                    <p>3. 每个问题只能选择一个答案</p>
+                    <p>4. 测试完成后，系统会根据您的得分提供详细分析和建议</p>
+                </div>
+                
+                <p>测试结果仅供参考，不能替代专业医疗诊断。如果您有严重注意力问题，请咨询专业医生。</p>
+                <button id="start-btn" class="btn">开始测试</button>
+            </div>
+        </div>
+        
+        <!-- 测试页面 -->
+        <div id="test-page" class="page">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <div class="progress-text">
+                    <span>问题 <span id="current-question">1</span>/22</span>
+                    <span>已完成: <span id="progress-percent">0%</span></span>
+                </div>
+            </div>
+            
+            <div id="question-container">
+                <!-- 问题将动态生成 -->
+            </div>
+            
+            <div style="text-align: center;">
+                <button id="next-btn" class="btn" style="display: none;">下一题</button>
+            </div>
+        </div>
+        
+        <!-- 结果页面 -->
+        <div id="result-page" class="page">
+            <h2 style="text-align: center; margin-bottom: 20px;">测试结果</h2>
+            
+            <div class="score-display">
+                <p>您的注意力测试得分</p>
+                <div class="score-value" id="score">0</div>
+                <p>总分88分</p>
+            </div>
+            
+            <div id="result-content">
+                <!-- 结果将动态生成 -->
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button id="retry-btn" class="btn">重新测试</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>注意力问题测试 &copy; 2023 | 本测试结果仅供参考，不能替代专业医疗诊断</p>
+    </footer>
+
+    <script>
+        // 测试题目数据
+        const questions = [
+            {
+                text: "平时做作业、听课或活动时，只能保持很短（10分钟内）的注意力。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "不喜欢或不愿意做那些需要持续动脑的事情（如课堂练习、写作、长篇阅读）。拖拖拉拉，需要被监督。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "只做手里的事情，不会注意到自己手里以外的事情。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "容易受外界干扰（如声音、光线）或内心杂念影响，频繁走神。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "桌子、文件夹，或者家里，生活的地方一团糟，找不到需要的东西。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "时间管理能力差，无法合理安排作业和休息时间。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "在完成项目或写作时，不知道从哪里开始，思路混乱。难以规划任务的步骤。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "持续性走神或者沉迷白日梦，通常超过6个月。偶尔的走神是正常的。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "在学业、工作或其他活动中，经常因为不注意细节而犯错误。例如，考试时看错题、漏做题；工作中数据录入错误。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "难以维持注意力：很难在任务或游戏活动中持续保持专注。例如，上课、开会或长时间阅读时，思想很容易开小差；与人交谈时显得心不在焉。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "听而不闻。当别人直接对你说话时，常常好像没在听，或者思绪在别处。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "容易半途而废，从一件事跳到另一件事。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "组织规划困难。在组织任务和活动方面有显著困难。例如，房间或书桌非常凌乱。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "经常拖延，无法在截止日期前完成任务。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "回避/抗拒需要持续脑力的活动。常常回避、不喜欢或不愿意从事需要持续精神努力的工作（如学校作业或论文撰写）。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "容易受外界干扰。很容易被外界的无关刺激（如窗外的声音、别人的谈话）分散注意力。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "日常健忘。在日常活动中经常忘事，如忘记约会、分配的任务、回电话等。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "启动任务困难：即使非常想完成一件事，也感觉难以开始，有一种'瘫痪'感。这不同于懒惰，而是大脑无法顺利地从'休息模式'切换到'行动模式'。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "动机依赖新奇和紧急程度：只有在新奇、有趣或面临巨大压力（如截止日期前最后一刻）时，才能调动注意力完成任务。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "人际关系，需要别人的时候想跟对方关系亲密，不需要别人的时候希望互不打扰。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "跟朋友，家人，同事相处时候，希望对方尊重自己的感受。不愿意为了对方改变自己的节奏，这很痛苦。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            },
+            {
+                text: "给对方的承诺常常忘记，不是有意的，但就是想不起来。",
+                options: ["经常如此", "偶尔如此", "有过几次", "从未有过"],
+                scores: [1, 2, 3, 4]
+            }
+        ];
+
+        // 结果描述
+        const results = {
+            level1: {
+                range: [22, 35],
+                title: "涣散型（注意力极差）",
+                description: "在绝大多数日常场景中都无法维持有效注意力。即使没有外界干扰，也极易被内心杂念带偏，难以完成简单的指令和任务。任务启动极度困难，思维经常处于'瘫痪'或'跳跃'状态。",
+                behaviors: [
+                    "阅读时难以理解段落大意",
+                    "对话中需要对方多次重复",
+                    "工作学习错误率极高，经常遗漏关键步骤",
+                    "自我组织管理能力基本缺失"
+                ],
+                advice: "前额叶皮层活跃度低于正常水平40%，通常是身体有慢性病或者其他相关病造成了大脑损伤等注意力问题，这些症状已严重影响到学业、工作和生活，强烈建议寻求精神科医生或临床心理师的专业评估，以明确是否存在ADHD或其他精神心理问题，并进行系统性的干预和治疗。"
+            },
+            level2: {
+                range: [36, 58],
+                title: "波动型（注意力不稳定）",
+                description: "注意力表现不稳定，呈'波浪式'起伏。在高压、新奇或感兴趣的事情上可以短时专注，但在枯燥、需要持续动脑的任务中注意力迅速衰退。抗干扰能力明显弱于常人，容易被外界刺激打断，且需要较长时间重新投入。",
+                behaviors: [
+                    "能完成部分任务，但效率较低，拖沓严重",
+                    "经常犯一些粗心的错误",
+                    "书桌、房间较为凌乱",
+                    "时间管理能力差，经常拖延"
+                ],
+                advice: "注意力问题已成为你前进道路上的明显障碍。可以通过学习执行功能训练技巧（如番茄工作法、任务分解）、改善生活环境、进行正念冥想和规律运动来积极改善。如果自我调节效果有限，寻求心理咨询师或教练的帮助会非常有效。"
+            },
+            level3: {
+                range: [59, 75],
+                title: "可控级（注意力基本正常）",
+                description: "具备与同龄人相当的注意力水平。能在需要时调动注意力，并维持足够长的时间以完成大部分任务。拥有基本的抗干扰和任务切换能力。",
+                behaviors: [
+                    "在挑战性高或枯燥的任务中偶尔会分心，但能主动或在他人的提醒下回到正轨",
+                    "整体上能够管理自己的学习和工作",
+                    "虽然有时会感到压力，但通常在截止日期前能完成任务"
+                ],
+                advice: "你的注意力系统工作良好。重点在于 '保养'和'优化'。注意劳逸结合，保证充足睡眠，继续使用对你有用的时间管理方法。你可以进一步探索如何进入'心流'状态，以提升效率和成就感。"
+            },
+            level4: {
+                range: [76, 88],
+                title: "凝聚级（高效注意力）",
+                description: "能够轻松地启动并长时间维持高度专注，甚至能进入'心流'状态。善于排除干扰，能高效地在不同任务间进行切换。",
+                behaviors: [
+                    "能够处理复杂且耗时的项目",
+                    "工作学习效率高，错误率低",
+                    "生活和工作安排得井井有条"
+                ],
+                advice: "你拥有出色的注意力控制能力。请继续保持健康的生活习惯和积极的思维训练，你的大脑是目前人类所能进化出来的顶级模式，请善用它。"
+            }
+        };
+
+        // 应用状态
+        let currentQuestionIndex = 0;
+        let answers = [];
+        let totalScore = 0;
+
+        // DOM元素
+        const welcomePage = document.getElementById('welcome-page');
+        const testPage = document.getElementById('test-page');
+        const resultPage = document.getElementById('result-page');
+        const startBtn = document.getElementById('start-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        const questionContainer = document.getElementById('question-container');
+        const progress = document.getElementById('progress');
+        const currentQuestionEl = document.getElementById('current-question');
+        const progressPercentEl = document.getElementById('progress-percent');
+        const scoreDisplay = document.getElementById('score');
+        const resultContent = document.getElementById('result-content');
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            startBtn.addEventListener('click', startTest);
+            nextBtn.addEventListener('click', nextQuestion);
+            retryBtn.addEventListener('click', startTest);
+        });
+
+        // 开始测试
+        function startTest() {
+            currentQuestionIndex = 0;
+            answers = [];
+            totalScore = 0;
+            
+            showPage(testPage);
+            showQuestion();
+        }
+
+        // 显示当前问题
+        function showQuestion() {
+            const question = questions[currentQuestionIndex];
+            questionContainer.innerHTML = '';
+            
+            // 更新进度条
+            const progressPercent = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progress.style.width = `${progressPercent}%`;
+            currentQuestionEl.textContent = currentQuestionIndex + 1;
+            progressPercentEl.textContent = `${Math.round(progressPercent)}%`;
+            
+            // 创建问题元素
+            const questionEl = document.createElement('div');
+            questionEl.className = 'question-container';
+            
+            const questionText = document.createElement('div');
+            questionText.className = 'question-text';
+            questionText.textContent = question.text;
+            questionEl.appendChild(questionText);
+            
+            // 创建选项
+            const optionsEl = document.createElement('div');
+            optionsEl.className = 'options';
+            
+            question.options.forEach((option, index) => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option';
+                optionEl.textContent = option;
+                optionEl.dataset.score = question.scores[index];
+                optionEl.addEventListener('click', function() {
+                    // 移除之前的选择
+                    document.querySelectorAll('.option').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    // 标记当前选择
+                    this.classList.add('selected');
+                    nextBtn.style.display = 'inline-block';
+                });
+                optionsEl.appendChild(optionEl);
+            });
+            
+            questionEl.appendChild(optionsEl);
+            questionContainer.appendChild(questionEl);
+            nextBtn.style.display = 'none';
+        }
+
+        // 下一题
+        function nextQuestion() {
+            // 收集当前题目的答案
+            const selectedOption = document.querySelector('.option.selected');
+            if (selectedOption) {
+                const score = parseInt(selectedOption.dataset.score);
+                answers.push({
+                    questionIndex: currentQuestionIndex,
+                    score: score
+                });
+                totalScore += score;
+            } else {
+                // 如果没有选择，默认选择第一个选项
+                const score = questions[currentQuestionIndex].scores[0];
+                answers.push({
+                    questionIndex: currentQuestionIndex,
+                    score: score
+                });
+                totalScore += score;
+            }
+            
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                finishTest();
+            }
+        }
+
+        // 完成测试
+        function finishTest() {
+            scoreDisplay.textContent = totalScore;
+            
+            // 确定结果等级
+            let result;
+            if (totalScore >= results.level1.range[0] && totalScore <= results.level1.range[1]) {
+                result = results.level1;
+            } else if (totalScore >= results.level2.range[0] && totalScore <= results.level2.range[1]) {
+                result = results.level2;
+            } else if (totalScore >= results.level3.range[0] && totalScore <= results.level3.range[1]) {
+                result = results.level3;
+            } else {
+                result = results.level4;
+            }
+            
+            // 显示结果
+            let levelClass = '';
+            if (result === results.level1) levelClass = 'level-1';
+            if (result === results.level2) levelClass = 'level-2';
+            if (result === results.level3) levelClass = 'level-3';
+            if (result === results.level4) levelClass = 'level-4';
+            
+            resultContent.innerHTML = `
+                <div class="level-info ${levelClass}">
+                    <h3>${result.title}</h3>
+                    <p><strong>核心特征：</strong>${result.description}</p>
+                    
+                    <p><strong>行为表现：</strong></p>
+                    <ul>
+                        ${result.behaviors.map(behavior => `<li>${behavior}</li>`).join('')}
+                    </ul>
+                    
+                    <p><strong>行动建议：</strong>${result.advice}</p>
+                </div>
+                
+                <div class="result-content">
+                    <h3>测试结果解读</h3>
+                    <p>您的测试得分为 <strong>${totalScore}</strong> 分，属于 <strong>${result.title}</strong>。</p>
+                    <p>请注意，本测试结果仅供参考，不能替代专业医疗诊断。如果您对自己的注意力状况有严重担忧，建议咨询专业医生或心理医生。</p>
+                </div>
+            `;
+            
+            showPage(resultPage);
+        }
+
+        // 显示指定页面
+        function showPage(page) {
+            // 隐藏所有页面
+            document.querySelectorAll('.page').forEach(p => {
+                p.classList.remove('active');
+            });
+            
+            // 显示指定页面
+            page.classList.add('active');
+            
+            // 滚动到顶部
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
